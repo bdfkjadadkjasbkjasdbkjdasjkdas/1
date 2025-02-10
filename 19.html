@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <title>Автобусный билет</title>
+    <style>
+      body {
+          font-family: Arial, sans-serif;
+          background-color: #000;
+          color: white;
+          margin: 0;
+          padding: 0;
+          height: 100vh;
+          height: -webkit-fill-available;
+          height: 100dvh;
+          width: 100%;
+          overflow: hidden;
+          position: fixed;
+          left: 0;
+          top: 0;
+          display: flex;
+          flex-direction: column;
+          min-height: -webkit-fill-available;
+      }
+
+      .container {
+          width: 100%;
+          height: 100dvh;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+      }
+      .form-container {
+          background-color: #000;
+          padding: 20px;
+          border-radius: 10px;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+      }
+      html {
+        height: -webkit-fill-available;
+      }
+      html, body {
+        height: 100dvh;
+        max-height: -webkit-fill-available;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        left: 0;
+      }
+      .form-group {
+          margin-bottom: 15px;
+      }
+      label {
+          display: block;
+          margin-bottom: 5px;
+          color: #ccc;
+      }
+      select, input {
+          width: 100%;
+          padding: 8px;
+          border: 1px solid #444;
+          border-radius: 5px;
+          background-color: #333;
+          color: white;
+      }
+      button {
+          width: 100%;
+          padding: 10px;
+          background-color: #e31c1c;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 16px;
+      }
+      .ticket-container {
+          display: none;
+          width: 200%;
+          transition: transform 0.3s;
+          position: fixed;
+          top: 0;
+          left: 0;
+          height: 100dvh;
+          background: #000;
+      }
+      .ticket {
+          background-color: #000;
+          padding: 20px 20px 80px 20px;
+          width: 50%;
+          float: left;
+          box-sizing: border-box;
+          height: 100%;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+          font-size: 20px;
+      }
+      .qr-view {
+          background-color: #000;
+          padding: 0 0 80px 0;
+          width: 50%;
+          float: left;
+          box-sizing: border-box;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+      }
+      .ticket-header {
+          font-size: 20px; /* Increased font size */
+          margin-bottom: 5px;
+          color: white;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 5px 0;
+          text-decoration: none;
+      }
+
+      .ticket-number {
+          color: #e31c1c;
+          font-size: 18px; /* Increased font size */
+          font-weight: bold;
+          margin-top: 3px;
+          text-align: center;
+      }
+      .close-icon {
+          cursor: pointer;
+          font-size: 18px;
+      }
+      .ticket-info {
+          padding: 12px 0;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          display: flex;
+          gap: 10px;
+          align-items: center;
+      }
+      .ticket-info:last-child {
+          border-bottom: none;
+      }
+      .ticket-info-icon {
+          width: 24px;
+          opacity: 0.5;
+          display: flex;
+          justify-content: center;
+      }
+      .ticket-info-content {
+          flex: 1;
+      }
+      .ticket-info .status-text {
+          color: rgba(255, 255, 255, 0.5);
+          font-size: 18px;
+          margin-bottom: 4px;
+      }
+      .ticket-info .value {
+          color: white;
+          font-size: 20px;
+      }
+      .countdown-top {
+          text-align: center;
+          padding: 10px;
+          font-size: 20px; /* Increased font size */
+          color: #e31c1c; /* Change to desired color */
+          text-decoration: none;
+      }
+      .ticket-tabs {
+          display: flex;
+          border-bottom: 1px solid #333;
+          margin-bottom: 10px;
+      }
+      .tab-button {
+          flex: 1;
+          padding: 10px;
+          background: none;
+          border: none;
+          color: white;
+          font-size: 16px;
+          cursor: pointer;
+          text-align: center;
+      }
+      .tab-button.active {
+          border-bottom: 2px solid #e31c1c;
+      }
+
+      .ticket-number-tab, .control-tab {
+          cursor: pointer;
+      }
+
+      .ticket-number-tab:hover, .control-tab:hover {
+          opacity: 0.8;
+      }
+      .control-section {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 15px;
+          padding: 10px 0;
+          border-bottom: 1px solid #333;
+      }
+      .control-button {
+          background: none;
+          border: none;
+          color: white;
+          padding: 0;
+          cursor: pointer;
+          width: auto;
+      }
+      .qr-code {
+          width: 100%;
+          max-width: none;
+          height: auto;
+          margin: 0;
+          display: block;
+      }
+      .close-button {
+        width: calc(50% - 90px);
+        padding: 15px;
+        background-color: #e31c1c;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        position: absolute;
+        bottom: 35px;
+        margin: 0 20px;
+        border-radius: 8px;
+        z-index: 2;
+      }
+
+.ticket::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 110px;
+        background-color: #222;
+        z-index: 1;
+      }
+
+.qr-view::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 100%;
+        height: 110px;
+        background-color: #222;
+        z-index: 1;
+      }
+
+      .ticket-header span:first-child {
+        color: white;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .ticket-header span:last-child {
+        color: white;
+      }
+
+      .ticket-header span:first-child::after {
+        content: ""; /* Remove ellipsis */
+        text-decoration: none; /* Remove underline */
+      }
+
+      .ticket-header span:last-child::after {
+        content: ""; /* Remove ellipsis */
+        text-decoration: none; /* Remove underline */
+      }
+
+      .close-icon {
+        color: white;
+        text-decoration: none; /* Remove underline */
+      }
+      .ticket-header span:first-child {
+        color: white;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .ticket-header span:last-child::after {
+          content: ""; /* Remove ellipsis */
+          text-decoration: none; /* Remove underline */
+      }
+
+      .countdown-top {
+          color: white;
+          font-weight: normal;
+      }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loginForm" class="form-container">
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Логин:</label>
+                    <input type="text" id="username" required placeholder="Введите логин">
+                </div>
+                <div class="form-group">
+                    <label>Пароль:</label>
+                    <input type="password" id="password" required placeholder="Введите пароль">
+                </div>
+                <button type="submit">Войти</button>
+            </form>
+        </div>
+        <div id="ticketForm" class="form-container" style="display: none;">
+            <form id="ticket-form">
+                <div class="form-group">
+                    <label>Перевозчик:</label>
+                    <select id="company" required>
+                        <option value='ООО "Экипаж-ГО"'>ООО "Экипаж-ГО"</option>
+                        <option value='ООО "СТК"'>ООО "СТК"</option>
+                        <option value="ИП Галченкова Е. А.">ИП Галченкова Е. А.</option>
+                        <option value="КПАТП-5">КПАТП-5</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Маршрут:</label>
+                    <select id="route" required>
+                        <option value="Спортзал - пос Таймыр">Спортзал - пос Таймыр</option>
+                        <option value="Студгородок - а.вокз. Восточный">Студгородок - а.вокз. Восточный</option>
+                        <option value="Дом ученых - А/В Восточный">Дом ученых - А/В Восточный</option>
+                        <option value='Парк "Прищепка" - Спортзал'>Парк "Прищепка" - Спортзал</option>
+                        <option value="Солнечный – Молодежная">Солнечный – Молодежная</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Номер автобуса:</label>
+                    <input type="text" id="busNumber" required placeholder="Введите номер автобуса">
+                </div>
+                <button type="submit">Сформировать билет</button>
+            </form>
+        </div>
+
+        <div id="ticketContainer" class="ticket-container">
+            <div id="ticket" class="ticket">
+                <div id="ticketContent"></div>
+                <button class="close-button" onclick="closeTicket()">ЗАКРЫТЬ</button>
+            </div>
+            <div class="qr-view">
+                <div class="countdown-top" id="qr-countdown" style="font-weight: normal; text-decoration: none;">Действует: 15 сек.</div>
+                <div style="display: flex; justify-content: center; gap: 50px; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <span onclick="showTicketView()" style="cursor: pointer;" id="qrTicketNumber">📱 951 238 022</span>
+                    <span style="color: #e31c1c; border-bottom: 2px solid #e31c1c; padding-bottom: 3px;">👤 Контроль</span>
+                </div>
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; padding: 0; margin: 0; position: relative;">
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; padding: 20px;">
+                        <img src="" id="qrCode" class="qr-code" style="width: 100%; height: auto; margin: 0 auto; display: block;">
+                        <div style="font-size: 32px; color: white; margin-top: 20px; width: 100%; text-align: center;" id="qrNumberDisplay"></div>
+                    </div>
+                </div>
+                <button class="close-button" onclick="closeTicket()">ЗАКРЫТЬ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === 'admin' && password === 'admin') {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('ticketForm').style.display = 'block';
+            } else {
+                alert('Неверный логин или пароль');
+            }
+        });
+
+        let isQRView = false;
+        let startX = 0;
+        let endX = 0;
+
+        document.getElementById('ticketContainer').addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+        });
+
+        document.getElementById('ticketContainer').addEventListener('touchmove', (e) => {
+            endX = e.touches[0].clientX;
+        });
+
+        document.getElementById('ticketContainer').addEventListener('touchend', () => {
+            const diffX = startX - endX;
+            if (Math.abs(diffX) > 50) {
+                if (diffX > 0 && !isQRView) {
+                    showQRView();
+                } else if (diffX < 0) {
+                    showTicketView();
+                }
+            }
+        });
+
+        function showTicketView() {
+            const ticketContainer = document.getElementById('ticketContainer');
+            ticketContainer.style.transform = 'translateX(0)';
+            isQRView = false;
+        }
+
+        let countdownInterval;
+
+        function startCountdown() {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+
+            const countdownElements = document.querySelectorAll('.countdown-top');
+            let timeLeft = 15;
+
+            countdownElements.forEach(element => {
+                element.textContent = `Действует: ${timeLeft} сек.`;
+            });
+
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                countdownElements.forEach(element => {
+                    element.textContent = `Действует: ${timeLeft} сек.`;
+                });
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    closeTicket();
+                }
+            }, 1000);
+        }
+
+        function closeTicket() {
+            document.getElementById('ticketContainer').style.display = 'none';
+            document.getElementById('ticketForm').style.display = 'block';
+            isQRView = false;
+            document.getElementById('ticketContainer').style.transform = 'translateX(0)';
+        }
+
+        function showQRView() {
+            const ticketContainer = document.getElementById('ticketContainer');
+            ticketContainer.style.transform = 'translateX(-50%)';
+            isQRView = true;
+        }
+
+
+
+        document.getElementById('ticket-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+
+
+            const company = document.getElementById('company').value;
+            const route = document.getElementById('route').value;
+            const busNumber = document.getElementById('busNumber').value;
+
+            const ticketContainer = document.getElementById('ticketContainer');
+            const ticketContent = document.getElementById('ticketContent');
+
+            const currentDate = new Date();
+            const randomNum = Math.floor(Math.random() * (999999999 - 950000000 + 1)) + 950000000;
+            const ticketNumber = randomNum.toString().replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+            let countdownInterval;
+
+            function updateCountdown(element, timeLeft) {
+                element.innerHTML = `Действует: ${timeLeft} сек.`;
+            }
+
+            const formattedDate = currentDate.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            const currentTime = currentDate.toLocaleTimeString('ru-RU', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            ticketContent.innerHTML = `
+                <div style="display: flex; flex-direction: column; height: 100%;">
+                    <div style="flex: 1;">
+                        <div class="countdown-top" id="countdown" style="font-weight: normal; text-decoration: none;">Действует: 15 сек.</div>
+                        <div style="display: flex; justify-content: center; gap: 50px; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <span onclick="showTicketView()" style="cursor: pointer; color: #e31c1c; border-bottom: 2px solid #e31c1c; padding-bottom: 3px;">🎫 ${ticketNumber}</span>
+                            <span style="color: white; text-decoration: none;" onclick="showQRView()">👤 Контроль</span>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="ticket-info-icon" style="color: white;">👨‍💼</div>
+                            <div class="ticket-info-content">
+                                <div class="status-text">Перевозчик</div>
+                                <div class="value">${company}</div>
+                            </div>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="ticket-info-icon" style="color: white;">🚍</div>
+                            <div class="ticket-info-content">
+                                <div class="status-text">${route}</div>
+                                <div class="value">${busNumber}</div>
+                            </div>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="ticket-info-icon" style="color: white;">₽</div>
+                            <div class="ticket-info-content">
+                                <div class="status-text">Стоимость</div>
+                                <div class="value">1 шт., Полный, 44.00 ₽</div>
+                            </div>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="ticket-info-icon" style="color: white;">📅</div>
+                            <div class="ticket-info-content">
+                                <div class="status-text">Дата покупки</div>
+                                <div class="value">${formattedDate}</div>
+                            </div>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="ticket-info-icon" style="color: white;">🕑</div>
+                            <div class="ticket-info-content">
+                                <div class="status-text">Время покупки:</div>
+                                <div class="value">${currentTime}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="close-button" onclick="closeTicket()">ЗАКРЫТЬ</button>
+                </div>
+            `;
+
+            document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${ticketNumber}`;
+            document.getElementById('qrTicketNumber').textContent = `📱 ${ticketNumber}`;
+            document.getElementById('qrNumberDisplay').textContent = `№ ${ticketNumber}`;
+
+            document.getElementById('ticketForm').style.display = 'none';
+            ticketContainer.style.display = 'block';
+            startCountdown();
+        });
+
+        // Add event listeners for all close buttons and icons
+        document.querySelectorAll('.close-button, .close-icon').forEach(button => {
+            button.addEventListener('click', closeTicket);
+        });
+    </script>
+</body>
+</html>
