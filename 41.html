@@ -137,33 +137,32 @@
           font-size: 18px;
       }
       .ticket-info {
-          padding: 12px 0;
+          padding: 18px 0;
           border-bottom: 1px solid rgba(255, 255, 255, 0.1);
           display: flex;
-          gap: 16px;
+          gap: 12px;
           align-items: center;
       }
       .ticket-info:last-child {
           border-bottom: none;
       }
       .ticket-info-icon {
-          width: 28px;
+          width: 24px;
           opacity: 0.5;
           display: flex;
           justify-content: center;
-          font-size: 22px;
       }
       .ticket-info-content {
           flex: 1;
       }
       .ticket-info .status-text {
           color: rgba(255, 255, 255, 0.5);
-          font-size: 16px;
-          margin-bottom: 4px;
+          font-size: 14px;
+          margin-bottom: 2px;
       }
       .ticket-info .value {
           color: white;
-          font-size: 21px;
+          font-size: 18px;
       }
       .countdown-top {
           text-align: center;
@@ -512,18 +511,17 @@
             ticketContent.innerHTML = `
                 <div style="display: flex; flex-direction: column; height: 100%;">
                     <div style="flex: 1;">
-                        <div style="padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                            <div style="color: rgba(255,255,255,0.5); font-size: 14px; text-align: center; margin-bottom: 2px;">Перевозчик</div>
-                            <div style="color: white; font-size: 18px; text-align: center;">${company}</div>
-                        </div>
-                        <div style="padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                            <div style="color: rgba(255,255,255,0.5); font-size: 14px; text-align: center; margin-bottom: 2px;">${route}</div>
-                            <div style="color: white; font-size: 21px; text-align: center;">${busNumber}</div>
-                        </div>
                         <div class="countdown-top" id="countdown" style="font-weight: normal; text-decoration: none;">Действует: 15 сек.</div>
                         <div style="display: flex; justify-content: center; gap: 50px; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
                             <span onclick="showTicketView()" style="cursor: pointer; color: #e31c1c; border-bottom: 2px solid #e31c1c; padding-bottom: 3px;">🎫 ${ticketNumber}</span>
                             <span style="color: white; text-decoration: none;" onclick="showQRView()">👤 Контроль</span>
+                        </div>
+                        <div class="ticket-info">
+                            <div class="ticket-info-icon" style="color: white;">👨‍💼</div>
+                            <div class="ticket-info-content">
+                                <div class="status-text">Перевозчик</div>
+                                <div class="value">${company}</div>
+                            </div>
                         </div>
                         <div class="ticket-info">
                             <div class="ticket-info-icon" style="color: white;">🚍</div>
@@ -549,7 +547,7 @@
                         <div class="ticket-info">
                             <div class="ticket-info-icon" style="color: white;">🕑</div>
                             <div class="ticket-info-content">
-                                <div class="status-text">Время покупки</div>
+                                <div class="status-text">Время покупки:</div>
                                 <div class="value">${currentTime}</div>
                             </div>
                         </div>
