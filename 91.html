@@ -311,10 +311,6 @@
         <div id="loginForm" class="form-container">
             <form id="login-form">
                 <div class="form-group">
-                    <label>Логин:</label>
-                    <input type="text" id="username" required placeholder="Введите логин">
-                </div>
-                <div class="form-group">
                     <label>Пароль:</label>
                     <input type="password" id="password" required placeholder="Введите пароль">
                 </div>
@@ -545,14 +541,13 @@
 
         document.getElementById('login-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            if (username === 'a' && password === 'a') {
+            if (password === ' ') {
                 document.getElementById('loginForm').style.display = 'none';
                 showTicketOptions();
             } else {
-                alert('Неверный логин или пароль');
+                alert('Неверный пароль');
             }
         });
 
